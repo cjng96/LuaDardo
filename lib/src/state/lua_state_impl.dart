@@ -925,14 +925,12 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool doFile(String filename) {
-    return loadFile(filename) == ThreadStatus.lua_ok &&
-        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadFile(filename) == ThreadStatus.lua_ok && pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
   }
 
   @override
   bool doString(String str) {
-    return loadString(str) == ThreadStatus.lua_ok &&
-        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadString(str) == ThreadStatus.lua_ok && pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
   }
 
   @override
