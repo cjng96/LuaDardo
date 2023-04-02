@@ -80,8 +80,7 @@ class ExpProcessor {
     fi.emitClosure(node.lastLine, a, bx);
   }
 
-  static void processTableConstructorExp(
-      FuncInfo fi, TableConstructorExp node, int a) {
+  static void processTableConstructorExp(FuncInfo fi, TableConstructorExp node, int a) {
     int nArr = 0;
     for (Exp? keyExp in node.keyExps) {
       if (keyExp == null) {
@@ -89,8 +88,7 @@ class ExpProcessor {
       }
     }
     int nExps = node.keyExps.length;
-    bool multRet =
-        nExps > 0 && ExpHelper.isVarargOrFuncCall(node.valExps[nExps - 1]);
+    bool multRet = nExps > 0 && ExpHelper.isVarargOrFuncCall(node.valExps[nExps - 1]);
 
     fi.emitNewTable(node.line, a, nArr, nExps - nArr);
 
