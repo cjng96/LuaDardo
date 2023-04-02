@@ -30,6 +30,8 @@ import 'lua_value.dart';
 import 'closure.dart';
 import 'upvalue_holder.dart';
 
+import '../../lua.dart';
+
 class LuaStateImpl implements LuaState, LuaVM {
   LuaStack? _stack = LuaStack();
 
@@ -302,9 +304,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   LuaType type(int idx) {
-    return _stack!.isValid(idx)
-        ? LuaValue.typeOf(_stack!.get(idx))
-        : LuaType.luaNone;
+    return _stack!.isValid(idx) ? LuaValue.typeOf(_stack!.get(idx)) : LuaType.luaNone;
   }
 
   @override
@@ -346,9 +346,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void arith(ArithOp op) {
     Object? b = _stack!.pop();
-    Object? a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot
-        ? _stack!.pop()
-        : b;
+    Object? a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot ? _stack!.pop() : b;
     Object? result = Arithmetic.arith(a, b, op, this);
     if (result != null) {
       _stack!.push(result);
@@ -455,6 +453,16 @@ class LuaStateImpl implements LuaState, LuaVM {
     if (t is LuaTable) {
       LuaTable tbl = t;
       Object? v = t.get(k);
+
+      if (v == null && tbl.map?.containsKey('__SBE_PROC__') == true) {
+        // global이 _ENV가 아니다
+        // if (v == null) {
+        // 생성해서 넣어준다
+        if (gSbeProc != null) {
+          gSbeProc!.call(k);
+          v = t.get(k);
+        }
+      }
 
       if (raw || v != null || !tbl.hasMetafield("__index")) {
         _stack!.push(v);
@@ -636,9 +644,8 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   ThreadStatus load(Uint8List chunk, String chunkName, String? mode) {
-    Prototype proto = BinaryChunk.isBinaryChunk(chunk)
-        ? BinaryChunk.unDump(chunk)
-        : Compiler.compile(utf8.decode(chunk), chunkName);
+    Prototype proto =
+        BinaryChunk.isBinaryChunk(chunk) ? BinaryChunk.unDump(chunk) : Compiler.compile(utf8.decode(chunk), chunkName);
     Closure closure = Closure(proto);
     _stack!.push(closure);
     if (proto.upvalues.length > 0) {
@@ -1147,8 +1154,7 @@ class LuaStateImpl implements LuaState, LuaVM {
         default:
           LuaType tt = getMetafield(idx, "__name");
           /* try name */
-          String? kind =
-              tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
+          String? kind = tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
           pushString("$kind: ${toPointer(idx).hashCode}");
           if (tt != LuaType.luaNil) {
             remove(-2); /* remove '__name' */
@@ -1274,8 +1280,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void loadVararg(int n) {
-    List<Object?>? varargs =
-        _stack!.varargs != null ? _stack!.varargs : const <Object>[];
+    List<Object?>? varargs = _stack!.varargs != null ? _stack!.varargs : const <Object>[];
     if (n < 0) {
       n = varargs!.length;
     }
