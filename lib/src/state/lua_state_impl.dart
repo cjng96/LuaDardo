@@ -631,6 +631,31 @@ class LuaStateImpl implements LuaState, LuaVM {
     }
   }
 
+  void callDartClosure(int nArgs, int nResults, DartFunction c) {
+    // create new lua stack
+    LuaStack newStack = new LuaStack(/*nRegs+LUA_MINSTACK*/);
+    newStack.state = this;
+    // newStack.closure = c;
+
+    // pass args, pop func
+    if (nArgs > 0) {
+      newStack.pushN(_stack!.popN(nArgs), nArgs);
+    }
+    // _stack!.pop();
+
+    // run closure
+    _pushLuaStack(newStack);
+    int r = c.call(this);
+    _popLuaStack();
+
+    // return results
+    if (nResults != 0) {
+      List<Object?> results = newStack.popN(r);
+      //stack.check(results.size())
+      _stack!.pushN(results, nResults);
+    }
+  }
+
   void _runLuaClosure() {
     for (;;) {
       int i = fetch();
