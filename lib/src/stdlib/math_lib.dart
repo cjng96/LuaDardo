@@ -184,6 +184,7 @@ class MathLib {
     return 1;
   }
 
+  // ignore: unused_element
   static _pushNumInt(LuaState ls, double d) {
     var i = d.toInt();
     if (d - i.toDouble() == 0) {
