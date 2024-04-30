@@ -179,6 +179,7 @@ class BasicLib {
     if (chunk != null) {
       /* loading a string? */
       var chunkName = ls.optString(2, chunk);
+      // ignore: unnecessary_cast
       ThreadStatus status = ls.load(utf8.encode(chunk) as Uint8List, chunkName!, mode);
       return loadAux(ls, status, env);
     } else {
@@ -262,8 +263,7 @@ class BasicLib {
   static int _baseSetMetatable(LuaState ls) {
     LuaType t = ls.type(2);
     ls.checkType(1, LuaType.luaTable);
-    ls.argCheck(t == LuaType.luaNil || t == LuaType.luaTable, 2,
-        "nil or table expected");
+    ls.argCheck(t == LuaType.luaNil || t == LuaType.luaTable, 2, "nil or table expected");
     if (ls.getMetafield(1, "__metatable") != LuaType.luaNil) {
       return ls.error2("cannot change a protected metatable");
     }
@@ -287,8 +287,7 @@ class BasicLib {
 // lua-5.3.4/src/lbaselib.c#luaB_rawlen()
   static int _baseRawLen(LuaState ls) {
     LuaType t = ls.type(1);
-    ls.argCheck(t == LuaType.luaTable || t == LuaType.luaString, 1,
-        "table or string expected");
+    ls.argCheck(t == LuaType.luaTable || t == LuaType.luaString, 1, "table or string expected");
     ls.pushInteger(ls.rawLen(1));
     return 1;
   }

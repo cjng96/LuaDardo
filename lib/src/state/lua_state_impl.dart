@@ -1039,6 +1039,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   ThreadStatus loadString(String s) {
+    // ignore: unnecessary_cast
     return load(utf8.encode(s) as Uint8List, s, "bt");
   }
 
